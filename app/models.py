@@ -4,7 +4,7 @@ from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 
 class ToxicityModel:
-    def __init__(self, model_path, tokenizer_path, max_len=150):
+    def __init__(self, model_path, tokenizer_path, max_len=200):
         self.model = load_model(model_path)
         self.max_len = max_len
 

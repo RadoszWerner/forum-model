@@ -10,7 +10,7 @@ app = Flask(__name__)
 CORS(app)
 
 class ToxicityModel:
-    def __init__(self, model_path, tokenizer_path, max_len=150):
+    def __init__(self, model_path, tokenizer_path, max_len=200):
         """
         Inicjalizacja modelu i tokenizatora.
         :param model_path: Ścieżka do zapisanego modelu Keras.
@@ -42,12 +42,17 @@ class ToxicityModel:
         :param comment: Tekst komentarza.
         :return: Wynik predykcji (np. prawdopodobieństwo toksyczności).
         """
+        # input_data = self.preprocess_input(comment)
+        # prediction = self.model.predict(input_data)
+        # return prediction[0].tolist()  # Zwróć wynik jako listę (JSON-friendly)
         input_data = self.preprocess_input(comment)
         prediction = self.model.predict(input_data)
-        return prediction[0].tolist()  # Zwróć wynik jako listę (JSON-friendly)
+        # Zastosowanie progowania do predykcji binarnej
+        binary_prediction = (prediction >= 0.5).astype(int)  # Zamiana na 0/1
+        return binary_prediction[0].tolist()
 
 # Wczytanie modelu i tokenizatora
-model = ToxicityModel('model/best_model_cnn.keras', 'model/tokenizer.pkl')
+model = ToxicityModel('model/best_model_lstm.keras', 'model/tokenizer.pkl')
 
 @app.route('/api/check_toxicity', methods=['POST'])
 def check_toxicity():
