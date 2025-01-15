@@ -6,7 +6,11 @@ from app.models import ToxicityModel
 # Przygotowanie aplikacji testowej
 @pytest.fixture
 def app():
+    from app import create_app
+    from app.routes import bp  # Import blueprinta
+
     app = create_app()
+    app.register_blueprint(bp)  # Rejestracja blueprinta
     app.config['TESTING'] = True
     return app
 

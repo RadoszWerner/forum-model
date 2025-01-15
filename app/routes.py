@@ -10,7 +10,6 @@ model = ToxicityModel('model/best_model_cnn.keras', 'model/tokenizer.pkl')
 @bp.route('/api/check_toxicity', methods=['POST'])
 def check_toxicity():
     try:
-        # Pobieranie komentarza z żądania
         data = request.get_json()
         comment = data.get('comment')
         if not comment:
