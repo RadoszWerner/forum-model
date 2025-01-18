@@ -1,6 +1,8 @@
 import pickle
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.sequence import pad_sequences
+from app.prepare_data import DataPreprocessor
+
 
 class ToxicityModel:
     def __init__(self, model_path, tokenizer_path, max_len=200):
@@ -13,7 +15,11 @@ class ToxicityModel:
 
     def preprocess_input(self, comment):
         # Tokenizuj tekst i dopasuj długość sekwencji
+        print(comment)
+        comment = DataPreprocessor().preprocess_text(comment)
+        print(comment)
         sequences = self.tokenizer.texts_to_sequences([comment])
+        print(sequences)
         return pad_sequences(sequences, maxlen=self.max_len)
 
     def predict_toxicity(self, comment):
@@ -23,3 +29,4 @@ class ToxicityModel:
         # Zastosuj progowanie
         binary_prediction = (prediction >= 0.5).astype(int)
         return binary_prediction[0].tolist()
+        #return prediction[0].tolist()
