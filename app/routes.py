@@ -1,10 +1,8 @@
 from flask import Blueprint, request, jsonify
 from app.models import ToxicityModel
 
-# Inicjalizacja blueprinta
 bp = Blueprint('routes', __name__)
 
-# Wczytaj model
 model = ToxicityModel('model/best_model_cnn.keras', 'model/tokenizer.pkl')
 
 @bp.route('/api/check_toxicity', methods=['POST'])

@@ -3,14 +3,13 @@ from flask import Flask
 from app import create_app
 from app.models import ToxicityModel
 
-# Przygotowanie aplikacji testowej
 @pytest.fixture
 def app():
     from app import create_app
-    from app.routes import bp  # Import blueprinta
+    from app.routes import bp 
 
     app = create_app()
-    app.register_blueprint(bp)  # Rejestracja blueprinta
+    app.register_blueprint(bp) 
     app.config['TESTING'] = True
     return app
 
@@ -20,41 +19,35 @@ def client(app):
 
 @pytest.fixture
 def model():
-    # Inicjalizacja modelu do testów
     return ToxicityModel('model/best_model_cnn.keras', 'model/tokenizer.pkl')
 
-# Test klasy ToxicityModel
 def test_toxicity_model_prediction(model):
     test_comment = "You are an idiot."
     result = model.predict_toxicity(test_comment)
-    assert isinstance(result, list)  # Wynik powinien być listą
-    assert len(result) == 6  # Model ma przewidywać 6 klas
+    assert isinstance(result, list)
+    assert len(result) == 6
     for score in result:
-        assert 0 <= score <= 1  # Wynik każdej klasy powinien być w zakresie [0, 1]
+        assert 0 <= score <= 1
 
-# Test endpointu /api/check_toxicity
 def test_check_toxicity_endpoint(client):
-    # Wysłanie prawidłowego żądania
     response = client.post('/api/check_toxicity', json={"comment": "I hate you."})
-    assert response.status_code == 200  # Sprawdź poprawny kod HTTP
+    assert response.status_code == 200
     data = response.get_json()
-    assert "toxicity_score" in data  # Sprawdź, czy wynik zawiera "toxicity_score"
-    assert len(data['toxicity_score']) == 6  # Sprawdź, czy są 6 wyniki klas
+    assert "toxicity_score" in data
+    assert len(data['toxicity_score']) == 6
 
 def test_check_toxicity_invalid_request(client):
-    # Wysłanie żądania bez komentarza
     response = client.post('/api/check_toxicity', json={})
-    assert response.status_code == 400  # Sprawdź kod błędu
+    assert response.status_code == 400
     data = response.get_json()
-    assert "error" in data  # Sprawdź, czy zwracana jest informacja o błędzie
+    assert "error" in data
 
 def test_check_toxicity_internal_error(client, monkeypatch):
-    # Symulacja błędu w predykcji
     def mock_predict_toxicity(*args, **kwargs):
         raise Exception("Mocked error")
 
     monkeypatch.setattr('app.models.ToxicityModel.predict_toxicity', mock_predict_toxicity)
     response = client.post('/api/check_toxicity', json={"comment": "Some comment."})
-    assert response.status_code == 500  # Sprawdź kod błędu serwera
+    assert response.status_code == 500
     data = response.get_json()
     assert "error" in data

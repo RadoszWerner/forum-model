@@ -9,24 +9,16 @@ class ToxicityModel:
         self.model = load_model(model_path)
         self.max_len = max_len
 
-        # Wczytaj tokenizator
         with open(tokenizer_path, 'rb') as f:
             self.tokenizer = pickle.load(f)
 
     def preprocess_input(self, comment):
-        # Tokenizuj tekst i dopasuj długość sekwencji
-        print(comment)
         comment = DataPreprocessor().preprocess_text(comment)
-        print(comment)
         sequences = self.tokenizer.texts_to_sequences([comment])
-        print(sequences)
         return pad_sequences(sequences, maxlen=self.max_len)
 
     def predict_toxicity(self, comment):
-        # Przeprowadź predykcję
         input_data = self.preprocess_input(comment)
         prediction = self.model.predict(input_data)
-        # Zastosuj progowanie
         binary_prediction = (prediction >= 0.5).astype(int)
         return binary_prediction[0].tolist()
-        #return prediction[0].tolist()
